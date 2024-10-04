@@ -86,8 +86,8 @@ with data_tab:
 	if dataset is not None:
 		st.dataframe(dataset)
 	else:
-		dataset = pd.read_csv('sample.csv', na_values=['', 'NaN'], keep_default_na=False)
-		# dataset = pd.read_csv('datasets/titanic.csv', na_values=['', 'NaN'], keep_default_na=False)
+		# dataset = pd.read_csv('sample.csv', na_values=['', 'NaN'], keep_default_na=False)
+		dataset = pd.read_csv('datasets/titanic.csv', na_values=['', 'NaN'], keep_default_na=False)
 		st.dataframe(dataset)
 		# st.write("No dataset")
 
@@ -124,19 +124,19 @@ with data_tab:
 # 	"random_state":42
 # }
 
-# st.session_state['preprocessing'] = {
-# 	"delete_cols":['PassengerId', 'Name', 'Cabin', 'Ticket'],
-# 	"dependent_variable":"Survived",
-# 	"null_handling_numeric":"Mean",
-# 	"null_handling_categorical":'Delete row',
-# 	"label_encoding_cols":['Sex'],
-# 	"one_hot_encoding_cols":['Embarked'],
-# 	"normalize_cols":['Age'],
-# 	"min_max_cols":['Fare'],
-# 	"test_size":0.33,
-# 	"random_state":42
+st.session_state['preprocessing'] = {
+	"delete_cols":['PassengerId', 'Name', 'Cabin', 'Ticket'],
+	"dependent_variable":"Survived",
+	"null_handling_numeric":"Mean",
+	"null_handling_categorical":'Delete row',
+	"label_encoding_cols":['Sex'],
+	"one_hot_encoding_cols":['Embarked'],
+	"normalize_cols":['Age'],
+	"min_max_cols":['Fare'],
+	"test_size":0.33,
+	"random_state":42
 
-# }
+}
 
 @st.dialog("Choose a model", width="small")
 def model_modal(container):
@@ -195,7 +195,7 @@ if 'preprocessing' in st.session_state.keys():
 			
 			model_container = st.container()
 
-			# st.session_state['models'] = [{"model":"Logistic Regression","parameters":{"penalty":"l2","C":1,"solver":"lbfgs","max_iter":100,"fit_intercept":True,"tol":0.001}},{"model":"Naive Bayes","parameters":{}},{"model":"Support Vector Machine","parameters":{"kernel":"rbf","C":1,"gamma":"scale","degree":3,"tol":0.001}},{"model":"Decision Tree Classifier","parameters":{"criterion":"gini","max_features":None,"min_samples_leaf":1,"min_samples_split":2}}]
+			st.session_state['models'] = [{"model":"Logistic Regression","parameters":{"penalty":"l2","C":1,"solver":"lbfgs","max_iter":100,"fit_intercept":True,"tol":0.001}},{"model":"Naive Bayes","parameters":{}},{"model":"Support Vector Machine","parameters":{"kernel":"rbf","C":1,"gamma":"scale","degree":3,"tol":0.001}},{"model":"Decision Tree Classifier","parameters":{"criterion":"gini","max_features":None,"min_samples_leaf":1,"min_samples_split":2}}]
 									
 			if st.button("Add Model"):
 				model_modal(model_container)
