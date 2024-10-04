@@ -34,7 +34,7 @@ def input_dicision_tree():
         criterion = st.selectbox("criteria", options=['gini', 'entropy', 'log_loss'])
         max_features = st.selectbox("max_features", options=[None, 'sqrt', 'log2'])
     with col2:
-        min_samples_split = st.number_input('min_samples_split', value=2.0, step=1.0)
+        min_samples_split = st.number_input('min_samples_split', value=2, step=1, min_value=2)
         min_samples_leaf = st.number_input('min_samples_leaf', value=1, min_value=1, step=1)
     
     return {'criterion': criterion, 'max_features': max_features, 'min_samples_leaf': min_samples_leaf, 'min_samples_split': min_samples_split}

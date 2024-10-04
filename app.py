@@ -4,8 +4,6 @@ import streamlit as st
 import numpy as np
 import pandas as pd
 
-from sklearn.metrics import accuracy_score
-
 from visualization import *
 from preprocessing import * 
 from models import *
@@ -15,8 +13,7 @@ from inputs import *
 st.set_page_config(layout="wide")
 if 'models' not in st.session_state.keys():
 	st.session_state['models'] = []
-if 'last_added_model' not in st.session_state.keys():
-	st.session_state['last_added_model'] = None
+
 	
 
 @st.dialog("Preprocess Data", width='large')
@@ -65,9 +62,9 @@ def preprocess_modal(dataset):
 			
 dataset = None
 
-# data_tab, model_tab = st.tabs(["Data", "Model"])
+
 data_tab, model_tab  = st.tabs(['Data', 'Model'])
-# Sidebar
+
 with st.sidebar:
 	file = st.file_uploader('Import Dataset', type=['xlsx', 'csv'], help='Upload a dataset to work upon')
 	if file:
@@ -79,64 +76,36 @@ with st.sidebar:
 		st.write("File loaded")
 
 	preprocessing_button = st.button("Preprocess Data")
-# Data tab
+
+
 with data_tab:
 
-	# Importing dataset
 	if dataset is not None:
 		st.dataframe(dataset)
-	else:
-		# dataset = pd.read_csv('sample.csv', na_values=['', 'NaN'], keep_default_na=False)
-		dataset = pd.read_csv('datasets/titanic.csv', na_values=['', 'NaN'], keep_default_na=False)
-		st.dataframe(dataset)
-		# st.write("No dataset")
 
-	# Ignore columns feature
-	ignore_id = st.checkbox("Ignore Columns")
-	if ignore_id:
-		col1, _ = st.columns([1,1])
+		ignore_id = st.checkbox("Ignore Columns")
+		if ignore_id:
+			col1, _ = st.columns([1,1])
+			with col1:
+				ignored_columns = st.multiselect('Select columns to ignore', options=dataset.columns)
+				old_dataset = dataset.copy()
+				dataset = dataset.drop(ignored_columns, axis=1)
+			
+		col1, col2= st.columns([1,1], gap='medium'	)
 		with col1:
-			ignored_columns = st.multiselect('Select columns to ignore', options=dataset.columns)
-			old_dataset = dataset.copy()
-			dataset = dataset.drop(ignored_columns, axis=1)
-		
-	# Visualizations
-	col1, col2= st.columns([1,1], gap='medium'	)
-	with col1:
-		display_missing_values(dataset)
-	with col2:
-		display_categorical_distribution(dataset)
-	display_numeric_distribution(dataset)
-	display_scatter_matrix(dataset)
-	# display_correlation_heatmap(dataset)
+			display_missing_values(dataset)
+		with col2:
+			display_categorical_distribution(dataset)
+		display_numeric_distribution(dataset)
+		display_scatter_matrix(dataset)
 
+	else:
+		# # dataset = pd.read_csv('sample.csv', na_values=['', 'NaN'], keep_default_na=False)
+		# dataset = pd.read_csv('datasets/titanic.csv', na_values=['', 'NaN'], keep_default_na=False)
+		# st.dataframe(dataset)
+		st.subheader("Upload a dataset...")
 
-# st.session_state['preprocessing'] = {
-# 	"delete_cols":['name'],
-# 	"dependent_variable":"gender",
-# 	"null_handling_numeric":"",
-# 	"null_handling_categorical":'',
-# 	"label_encoding_cols":['gender'],
-# 	"one_hot_encoding_cols":['city'],
-# 	"normalize_cols":['age'],
-# 	"min_max_cols":['salary'],
-# 	"test_size":0.33,
-# 	"random_state":42
-# }
-
-st.session_state['preprocessing'] = {
-	"delete_cols":['PassengerId', 'Name', 'Cabin', 'Ticket'],
-	"dependent_variable":"Survived",
-	"null_handling_numeric":"Mean",
-	"null_handling_categorical":'Delete row',
-	"label_encoding_cols":['Sex'],
-	"one_hot_encoding_cols":['Embarked'],
-	"normalize_cols":['Age'],
-	"min_max_cols":['Fare'],
-	"test_size":0.33,
-	"random_state":42
-
-}
+	
 
 @st.dialog("Choose a model", width="small")
 def model_modal(container):
@@ -153,12 +122,20 @@ def model_modal(container):
 		params = input_random_forest()
 	elif model == 'K-Nearest Neighbors':
 		params = input_knn()	
-	
 
-	if st.button("Add"):
-		st.session_state['last_added_model'] = {'model': model, 'parameters': params}
-		st.session_state['models'].append(st.session_state['last_added_model'])
-		st.rerun()
+
+	col1, col2, _= st.columns([1,3,3,])
+
+	with col2:
+		if st.button("Add All Models"):
+			st.session_state.models = [{"model":"Logistic Regression","parameters":{"penalty":"l2","C":1,"solver":"lbfgs","max_iter":100,"fit_intercept":True,"tol":0.001}},{"model":"Naive Bayes","parameters":{}},{"model":"Support Vector Machine","parameters":{"kernel":"rbf","C":1,"gamma":"scale","degree":3,"tol":0.001}},{"model":"K-Nearest Neighbors","parameters":{"weights":"uniform","algorithm":"auto","metric":"minkowski","n_neighbors":5,"leaf_size":30,"p":2}},{"model":"Decision Tree Classifier","parameters":{"criterion":"gini","max_features":None,"min_samples_leaf":1,"min_samples_split":2}},{"model":"Random Forest Classifier","parameters":{"n_estimators":100,"criterion":"gini","max_features":None,"min_samples_leaf":1,"min_samples_split":2}}]
+			st.rerun()
+		
+	with col1:
+		if st.button("Add"):
+			st.session_state['models'].append({'model': model, 'parameters': params})
+			st.rerun()
+		
 
 
 if preprocessing_button:
@@ -169,6 +146,8 @@ if 'preprocessing' in st.session_state.keys():
 	with data_tab:	
 		st.success("Data preprocessed. Head over to train model tab to train the model.")
 	with model_tab:
+		if 'last_added_model' not in st.session_state.keys():
+			st.session_state['last_added_model'] = None
 		try:
 			X_train, X_test, y_train, y_test = preprocess(dataset, st.session_state['preprocessing'])
 			preprocess_error = False
@@ -195,8 +174,10 @@ if 'preprocessing' in st.session_state.keys():
 			
 			model_container = st.container()
 
-			st.session_state['models'] = [{"model":"Logistic Regression","parameters":{"penalty":"l2","C":1,"solver":"lbfgs","max_iter":100,"fit_intercept":True,"tol":0.001}},{"model":"Naive Bayes","parameters":{}},{"model":"Support Vector Machine","parameters":{"kernel":"rbf","C":1,"gamma":"scale","degree":3,"tol":0.001}},{"model":"Decision Tree Classifier","parameters":{"criterion":"gini","max_features":None,"min_samples_leaf":1,"min_samples_split":2}}]
-									
+			# st.session_state['models'] = [{"model":"Logistic Regression","parameters":{"penalty":"l2","C":1,"solver":"lbfgs","max_iter":100,"fit_intercept":True,"tol":0.001}},{"model":"Naive Bayes","parameters":{}},{"model":"Support Vector Machine","parameters":{"kernel":"rbf","C":1,"gamma":"scale","degree":3,"tol":0.001}},{"model":"Decision Tree Classifier","parameters":{"criterion":"gini","max_features":None,"min_samples_leaf":1,"min_samples_split":2}}]
+
+			st.session_state.add_all_disabled = False 
+
 			if st.button("Add Model"):
 				model_modal(model_container)
 
@@ -208,7 +189,9 @@ if 'preprocessing' in st.session_state.keys():
 				model_container.subheader("Add models to show")
 
 			if st.button("Run Models"):
-				run_models(X_train, X_test, y_train, y_test, st.session_state['models'])
-
-				# for model, y_pred in predictions.items():
+				try:
+					run_models(X_train, X_test, y_train, y_test, st.session_state['models'])
+				except Exception as e:
+					st.error("Error in building model. Please try again with proper methods.")
+					st.error(e)
 			
