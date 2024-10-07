@@ -1,6 +1,6 @@
 # Classification Builder
 
-**Classification Builder** is a user-friendly web application built with Streamlit that allows users to easily perform exploratory data analysis (EDA), preprocess datasets, train machine learning classification models, and evaluate them using various performance metrics and visualizations, such as ROC curves and confusion matrices.
+**Classification Builder** is a user-friendly web application built with Streamlit that allows users to easily perform exploratory data analysis (EDA), preprocess datasets, train machine learning classification models, and evaluate them using various performance metrics and visualizations.
 
 ## Features
 
