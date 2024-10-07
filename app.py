@@ -4,10 +4,10 @@ import streamlit as st
 import numpy as np
 import pandas as pd
 
-from visualization import *
-from preprocessing import * 
-from models import *
-from inputs import *
+from utils.visualization import *
+from utils.preprocessing import * 
+from utils.models import *
+from utils.inputs import *
 
 
 st.set_page_config(layout="wide")
