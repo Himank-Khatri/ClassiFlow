@@ -69,4 +69,4 @@ def run_models(X_train, X_test, y_train, y_test, models):
 						yanchor='top'
 					)
 				)
-				st.plotly_chart(fig_roc)
+				st.plotly_chart(fig_roc, key=None)
